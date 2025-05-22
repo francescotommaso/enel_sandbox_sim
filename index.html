@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economizador Noturno de Energia - Dia Inteiro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Análise de Demanda ao Longo do Dia (00:00 - 23:45)</h1>
+    </header>
+
+    <main>
+        <section id="appliance-selection">
+            <h2>1. Selecione os Aparelhos Que Você Usa:</h2>
+            <div class="appliance-grid">
+                </div>
+        </section>
+
+        <section id="initial-time-input-section">
+            <h2>3. Defina Seus Horários Iniciais de Uso (00:00 - 23:45):</h2>
+            <div id="initial-time-sliders-container">
+                </div>
+        </section>
+
+        <section id="initial-results">
+            <h2>4. Sua Carga Inicial e Custo Estimado:</h2>
+            <div id="initial-load-curve-chart-container">
+                <canvas id="initialLoadCurveChart"></canvas>
+            </div>
+            <p>Custo Estimado Inicial: <span id="initial-cost">--</span></p>
+        </section>
+
+        <section id="optimization-tips">
+            <h2>5. Dicas de Otimização:</h2>
+            <ul id="tips-list">
+                </ul>
+        </section>
+
+        <section id="adjusted-time-input-section">
+            <h2>6. Ajuste os Horários de Uso para Otimização (00:00 - 23:45):</h2>
+            <p><em>Use esses controles deslizantes para explorar como mudar o uso dos aparelhos afeta sua carga e custos. Eles começarão espelhando suas configurações iniciais.</em></p>
+            <div id="adjusted-time-sliders-container">
+                </div>
+        </section>
+
+        <section id="adjusted-results">
+            <h2>7. Carga Ajustada e Possíveis Economias:</h2>
+            <p><em>Compare seu uso inicial (Seções 3 e 4) com seu uso ajustado abaixo. Os resultados atualizam à medida que você move os controles de 'Horários de Uso Ajustados' acima.</em></p>
+            <div id="updated-load-curve-chart-container">
+                 <canvas id="updatedLoadCurveChart"></canvas>
+            </div>
+            <p>Custo Estimado Ajustado: <span id="new-cost">--</span></p>
+            <div id="cost-comparison-chart-container">
+                <canvas id="costComparisonChart"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Aplicativo Simulador de Demanda</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
