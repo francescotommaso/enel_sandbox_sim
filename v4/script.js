@@ -32,11 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Appliance Definitions ---
     const appliances = [
         { id: 'electric-shower', name: 'Chuveiro Elétrico', power: 5500, count: 1, iconBW: 'icons/shower_bw.png', iconColor: 'icons/shower_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
-        { id: 'washing-machine', name: 'Máquina de Lavar Roupa', power: 600, count: 1, iconBW: 'icons/washing_machine_bw.png', iconColor: 'icons/washing_machine_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
+        { id: 'washing-machine', name: 'Máquina de Lavar', power: 600, count: 1, iconBW: 'icons/washing_machine_bw.png', iconColor: 'icons/washing_machine_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
         { id: 'vacuum-cleaner', name: 'Aspirador de Pó', power: 1000, count: 1, iconBW: 'icons/vacuum_bw.png', iconColor: 'icons/vacuum_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
-        { id: 'iron', name: 'Ferro de Passar Roupa', power: 1500, count: 1, iconBW: 'icons/iron_bw.png', iconColor: 'icons/iron_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
+        { id: 'iron', name: 'Ferro de Passar', power: 1500, count: 1, iconBW: 'icons/iron_bw.png', iconColor: 'icons/iron_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
         { id: 'air-fryer', name: 'Fritadeira Elétrica', power: 1500, count: 1, iconBW: 'icons/air_fryer_bw.png', iconColor: 'icons/air_fryer_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
-        { id: 'electric-oven', name: 'Micro-ondas', power: 3000, count: 1, iconBW: 'icons/oven_bw.png', iconColor: 'icons/oven_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] }
+        { id: 'electric-oven', name: 'Forno de Micro-ondas', power: 3000, count: 1, iconBW: 'icons/oven_bw.png', iconColor: 'icons/oven_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] }
     ];
 
     // --- DOM Element References ---
@@ -607,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('new-cost').textContent = `R$${adjustedScenario.totalCost.toFixed(2)}`;
 
         plotCostComparisonStacked(initialScenario, adjustedScenario);
-        generateTips(initialScenario, adjustedScenario, selectedApps); // Pass initialScenario here
+        generateTips(adjustedScenario, selectedApps); // Pass the whole scenario object
     }
 
     function plotLoadCurve(loadDataWatts, labelsArray, canvasId, instanceVarName, datasetLabel, xAxisLabel) {
@@ -668,42 +668,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvas = document.getElementById('costComparisonChart'); if (!canvas) return; const ctx = canvas.getContext('2d');
         if (costComparisonChartInstance) costComparisonChartInstance.destroy();
 
-        const stackGroup = 'totalBill'; // All datasets belong to the same stack group
+        // Assign all datasets to the same stack group, e.g., 'totalBill'
+        const stackGroup = 'totalBill';
 
-        // Data for the three parts: Fixed, Volumetric (Total), Demand (Total)
-        // The order in this array determines the stacking order (bottom to top)
         const datasets = [
-            {
-                label: 'Taxa Fixa', // Bottom part
-                data: [initialScen.fixedCharge, adjustedScen.fixedCharge],
-                backgroundColor: 'rgba(153, 102, 255, 0.7)', // Example color: Purple
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1,
-                stack: stackGroup
-            },
-            {
-                label: 'Custo Volumétrico Total', // Middle part
-                data: [initialScen.totalVolumetricCharge, adjustedScen.totalVolumetricCharge],
-                backgroundColor: 'rgba(75, 192, 192, 0.7)', // Example color: Teal/Green
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-                stack: stackGroup
-            },
-            {
-                label: 'Custo de Demanda Total', // Top part
-                data: [initialScen.totalDemandCharge, adjustedScen.totalDemandCharge],
-                backgroundColor: 'rgba(255, 99, 132, 0.7)', // Example color: Red
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
-                stack: stackGroup
-            }
+            { label: 'Taxa Fixa', data: [initialScen.fixedCharge, adjustedScen.fixedCharge], backgroundColor: 'rgba(153, 102, 255, 0.7)', borderColor: 'rgba(153, 102, 255, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Consumo Madrugada', data: [initialScen.volumetricChargeBreakdown['0-6'], adjustedScen.volumetricChargeBreakdown['0-6']], backgroundColor: 'rgba(54, 162, 235, 0.5)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Consumo Intermediário', data: [initialScen.volumetricChargeBreakdown['17_21'], adjustedScen.volumetricChargeBreakdown['17_21']], backgroundColor: 'rgba(255, 159, 64, 0.7)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Consumo Ponta', data: [initialScen.volumetricChargeBreakdown['18-20'], adjustedScen.volumetricChargeBreakdown['18-20']], backgroundColor: 'rgba(255, 99, 132, 0.7)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Consumo Fora Ponta', data: [initialScen.volumetricChargeBreakdown['other'], adjustedScen.volumetricChargeBreakdown['other']], backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Demanda Madrugada', data: [initialScen.demandChargeBreakdown['0-6'], adjustedScen.demandChargeBreakdown['0-6']], backgroundColor: 'rgba(54, 162, 235, 0.3)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1, stack: stackGroup}, // Ensuring same stack group
+            { label: 'Demanda Intermediário', data: [initialScen.demandChargeBreakdown['17_21'], adjustedScen.demandChargeBreakdown['17_21']], backgroundColor: 'rgba(255, 159, 64, 0.5)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Demanda Ponta', data: [initialScen.demandChargeBreakdown['18-20'], adjustedScen.demandChargeBreakdown['18-20']], backgroundColor: 'rgba(255, 99, 132, 0.5)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1, stack: stackGroup },
+            { label: 'Demanda Fora da Ponta', data: [initialScen.demandChargeBreakdown['other'], adjustedScen.demandChargeBreakdown['other']], backgroundColor: 'rgba(75, 192, 192, 0.4)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1, stack: stackGroup }
         ];
+
 
         costComparisonChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Cenário Inicial', 'Cenário Ajustado'],
-                datasets: datasets // Use the modified datasets array
+                datasets: datasets
             },
             options: {
                 responsive: true,
@@ -724,188 +709,95 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function generateTips(initialScenario, adjustedScenario, selectedApps) {
-        // --- General Tips ---
-        const generalTipsListElement = document.getElementById('tips-list');
-        if (!generalTipsListElement) {
-            console.error("Element with ID 'tips-list' not found for general tips.");
-        } else {
-            generalTipsListElement.innerHTML = ''; // Clear previous general tips
+    function generateTips(adjustedScenario, selectedApps) {
+        const tipsList = document.getElementById('tips-list');
+        tipsList.innerHTML = '';
+        let tipsFound = false;
 
-            let generalTipsHtml = `<h3>💡 Dicas Gerais para Economizar Energia:</h3><ul>`;
-            generalTipsHtml += `<li>🌙 Sempre que possível, tente usar mais os aparelhos entre 0h e 6h, quando a tarifa de energia é menor (R$ ${VOLUMETRIC_RATE_0_6.toFixed(2)}/kWh).</li>`;
-            generalTipsHtml += `<li>No caso de chuveiros elétricos, utilize a chave na posição 'verão' (ou menos potente) em dias mais quentes para reduzir o consumo.</li>`;
-            generalTipsHtml += `<li>Acumule uma quantidade maior de roupas para utilizar a máquina de lavar e o ferro de passar de uma só vez, otimizando o uso desses aparelhos.</li>`;
-            generalTipsHtml += `</ul>`;
-            generalTipsListElement.innerHTML = generalTipsHtml;
+        const adjustedPeakKwOverall = adjustedScenario.peakHourlyDemandKw;
+        // We need initial peak to compare, assuming it's available or we fetch it.
+        // For simplicity, let's assume initial peak is part of a broader context or we only comment on adjusted.
+        // const initialPeakKwOverall = initialScenario.peakHourlyDemandKw; // If initialScenario is available here
+
+        const adjustedPeakDemandByToU = adjustedScenario.peakDemandByToU;
+
+        // General tip about the base load
+        tipsList.innerHTML += `<li>Lembre-se que há uma carga base constante de ${BASE_DEMAND_WATTS}W (equivalente a ${((BASE_DEMAND_WATTS/1000)*24*DAYS_IN_MONTH).toFixed(1)} kWh/mês) incluída nos cálculos.</li>`;
+        tipsFound = true;
+
+
+        // Tips for specific ToU peak demands
+        if (adjustedPeakDemandByToU['18-20'] > (BASE_DEMAND_WATTS / 1000)) { // Only show if peak is above base
+            tipsList.innerHTML += `<li>Atenção ao pico de demanda entre 18h-20h: ${adjustedPeakDemandByToU['18-20'].toFixed(2)} kW. Esta é a faixa de maior custo de demanda (R$${DEMAND_RATE_18_20.toFixed(2)}/kW). Tente reduzir o uso simultâneo de aparelhos neste período.</li>`;
+            tipsFound = true;
+        }
+        if (adjustedPeakDemandByToU['17_21'] > (BASE_DEMAND_WATTS / 1000)) {
+             tipsList.innerHTML += `<li>Seu pico de demanda às 17h ou 21h é de ${adjustedPeakDemandByToU['17_21'].toFixed(2)} kW. O custo de demanda neste horário é de R$${DEMAND_RATE_17_21.toFixed(2)}/kW.</li>`;
+            tipsFound = true;
+        }
+         if (adjustedPeakDemandByToU['other'] > (BASE_DEMAND_WATTS / 1000) && DEMAND_RATE_OTHER > DEMAND_RATE_0_6) { // If 'other' is more expensive than '0-6'
+             tipsList.innerHTML += `<li>O pico de demanda nas "Outras Horas" (fora da madrugada e dos picos principais) é de ${adjustedPeakDemandByToU['other'].toFixed(2)} kW, com custo de R$${DEMAND_RATE_OTHER.toFixed(2)}/kW.</li>`;
+            tipsFound = true;
         }
 
-        // --- Scenario-Specific Tips ---
-        const scenarioTipsContainerElement = document.getElementById('scenario-specific-tips-container');
-        if (!scenarioTipsContainerElement) {
-            console.error("Element with ID 'scenario-specific-tips-container' not found for scenario tips.");
-            return; // If this container is missing, can't proceed
-        }
-        scenarioTipsContainerElement.innerHTML = ''; // Clear previous content from the container
 
-        if (selectedApps.length === 0) {
-            // If no appliances are selected, show a placeholder message in the scenario tips area
-            scenarioTipsContainerElement.innerHTML = `<h3>📈 Dicas para seu Cenário Ajustado:</h3><p><em>Selecione eletrodomésticos e ajuste os horários de uso para ver dicas específicas para o seu novo cenário.</em></p>`;
-            return;
-        }
+        selectedApps.forEach(app => { if ((app.count || 1) > 1 && app.adjustedUsageSlots && app.adjustedUsageSlots.length > 1) { tipsList.innerHTML += `<li>Com múltiplos usos de '${app.name}' em seu plano ajustado, certifique-se de que os horários sejam escalonados para minimizar a demanda simultânea, especialmente nos horários de pico de custo.</li>`; tipsFound = true; }});
 
-        // If apps are selected, proceed to generate and display conditional/scenario-specific tips
-        let conditionalTipsHtml = `<h3>📈 Dicas para seu Cenário Ajustado:</h3><ul>`;
-        let scenarioTipsFound = false;
-        let specificAdviceGiven = false; // To track if more than generic advice was given
+        let overlappingHighPowerInExpensiveHours = false;
+        const highPowerApps = selectedApps.filter(app => app.power >= 1500);
 
-        const baseDemandKw = BASE_DEMAND_WATTS / 1000;
-        const currencyFormat = { style: 'currency', currency: 'BRL' };
-
-        // 1. Compare total costs
-        if (initialScenario && adjustedScenario.totalCost < initialScenario.totalCost) {
-            const savings = initialScenario.totalCost - adjustedScenario.totalCost;
-            conditionalTipsHtml += `<li>🎉 <strong>Parabéns!</strong> Com os ajustes, você simulou uma economia de <strong>${savings.toLocaleString('pt-BR', currencyFormat)}</strong> em relação ao cenário inicial (de ${initialScenario.totalCost.toLocaleString('pt-BR', currencyFormat)} para ${adjustedScenario.totalCost.toLocaleString('pt-BR', currencyFormat)}).</li>`;
-            scenarioTipsFound = true;
-            specificAdviceGiven = true;
-        } else if (initialScenario && adjustedScenario.totalCost > initialScenario.totalCost) {
-            const increase = adjustedScenario.totalCost - initialScenario.totalCost;
-            conditionalTipsHtml += `<li>⚠️ Seu cenário ajustado resultou em um custo <strong>maior</strong> de ${increase.toLocaleString('pt-BR', currencyFormat)}. Revise os horários de uso e os picos de demanda.</li>`;
-            scenarioTipsFound = true;
-            specificAdviceGiven = true;
-        } else if (initialScenario && adjustedScenario.totalCost === initialScenario.totalCost && selectedApps.length > 0) {
-             conditionalTipsHtml += `<li>⚖️ O custo do seu cenário ajustado (<strong>${adjustedScenario.totalCost.toLocaleString('pt-BR', currencyFormat)}</strong>) é o mesmo do cenário inicial. Explore diferentes horários para buscar economia.</li>`;
-             scenarioTipsFound = true;
-        }
-
-        // 3. Demand Charge Focus
-        const demandChargePercentage = adjustedScenario.totalCost > 0 ? (adjustedScenario.totalDemandCharge / adjustedScenario.totalCost) * 100 : 0;
-        if (demandChargePercentage > 35 && adjustedScenario.totalDemandCharge > (TARIFF_FIXED_CHARGE * 0.5)) {
-            conditionalTipsHtml += `<li>⚠️ Aproximadamente <strong>${demandChargePercentage.toFixed(0)}%</strong> do seu custo ajustado é devido à <strong>taxa de demanda</strong>. Reduzir o uso simultâneo de aparelhos potentes, especialmente nos horários de pico, pode gerar economias consideráveis.</li>`;
-            scenarioTipsFound = true;
-            specificAdviceGiven = true;
-        }
-
-        // 4. Peak Demand Warnings
-        if (adjustedScenario.peakDemandByToU['18-20'] > baseDemandKw) {
-            conditionalTipsHtml += `<li>🔴 <strong>Atenção ao pico de demanda entre 18:00-20:59!</strong> Seu pico é de <strong>${adjustedScenario.peakDemandByToU['18-20'].toFixed(2)} kW</strong>. Esta é a faixa com a <strong>taxa de demanda mais cara</strong> (${DEMAND_RATE_18_20.toLocaleString('pt-BR', currencyFormat)}/kW). Evite ao máximo o uso simultâneo de aparelhos de alta potência neste período.</li>`;
-            specificAdviceGiven = true; scenarioTipsFound = true;
-        } else if (initialScenario && initialScenario.peakDemandByToU['18-20'] > baseDemandKw && adjustedScenario.peakDemandByToU['18-20'] <= baseDemandKw) {
-             conditionalTipsHtml += `<li>✅ Ótimo! Você conseguiu eliminar picos de demanda acima da carga base no horário de ponta crítico (18:00-20:59) no seu plano ajustado.</li>`;
-             specificAdviceGiven = true; scenarioTipsFound = true;
-        }
-
-        if (adjustedScenario.peakDemandByToU['17_21'] > baseDemandKw) {
-            conditionalTipsHtml += `<li>🟠 Seu pico de demanda às <strong>17:00-17:59 ou 21:00-21:59</strong> é de <strong>${adjustedScenario.peakDemandByToU['17_21'].toFixed(2)} kW</strong>. A taxa de demanda neste horário é de ${DEMAND_RATE_17_21.toLocaleString('pt-BR', currencyFormat)}/kW. Ainda é um horário caro para picos.</li>`;
-            specificAdviceGiven = true; scenarioTipsFound = true;
-        }
-
-        if (adjustedScenario.peakDemandByToU['other'] > baseDemandKw && DEMAND_RATE_OTHER > DEMAND_RATE_0_6) {
-            conditionalTipsHtml += `<li>🟡 Seu pico de demanda no posto <strong>"Fora da Ponta"</strong> (fora da madrugada e dos picos 17-21h) é de <strong>${adjustedScenario.peakDemandByToU['other'].toFixed(2)} kW</strong>, com taxa de ${DEMAND_RATE_OTHER.toLocaleString('pt-BR', currencyFormat)}/kW. Se possível, tente deslocar esse pico para a madrugada.</li>`;
-            specificAdviceGiven = true; scenarioTipsFound = true;
-        }
-
-        // 6. Multiple uses of the same appliance
-        const peakStartMinutes = 18 * 60; // 18:00
-        const peakEndMinutes = 21 * 60;   // 21:00 (exclusive end for 18:00-20:59 window)
-
-        selectedApps.forEach(app => {
-            if (app.selected && (app.count || 1) > 1 && app.adjustedUsageSlots && app.adjustedUsageSlots.length > 1) {
-                conditionalTipsHtml += `<li>🔄 Você está usando <strong>'${app.name}' ${app.count} vezes</strong>. Certifique-se de que os horários de uso estão bem espaçados para minimizar a demanda simultânea, especialmente durante os horários de pico de custo de demanda (17:00-21:59).</li>`;
-                scenarioTipsFound = true;
-                let usesInCriticalPeak = 0;
-                app.adjustedUsageSlots.forEach(slot => {
-                    if (!slot) return;
-                    const slotEnd = slot.start + slot.duration;
-                    // Check if the slot overlaps with the 18:00-20:59 critical peak
-                    if (slot.start < peakEndMinutes && slotEnd > peakStartMinutes) {
-                         usesInCriticalPeak++;
-                    }
-                });
-                if (usesInCriticalPeak >= 2) {
-                     conditionalTipsHtml += `<li><span style="color:red;">❗ Múltiplos usos de '${app.name}' (${usesInCriticalPeak}x) ocorrem ou se sobrepõem ao horário de ponta máximo (18:00-20:59). Considere fortemente reagendar alguns para fora deste período ou garantir que não são simultâneos.</span></li>`;
-                     specificAdviceGiven = true;
-                }
-            }
-        });
-
-        // 7. Overlapping high-power appliances
-        const highPowerApps = selectedApps.filter(app => app.selected && app.power >= 1500 && app.adjustedUsageSlots && app.adjustedUsageSlots.length > 0);
         if (highPowerApps.length > 1) {
-            let overlappingHighPowerInExpensiveHours = false;
-            let detailOverlapMessages = []; // To collect detailed messages
-
-            for (let t_idx = 0; t_idx < adjustedScenario.loadProfileWatts.length; t_idx++) {
-                const intervalStartMinutes = MIN_TIME_MINUTES + (t_idx * TIME_STEP_MINUTES);
+            for (let i = 0; i < adjustedScenario.loadProfileWatts.length; i++) {
+                let concurrentHighPowerAppsInInterval = 0;
+                const intervalStartMinutes = MIN_TIME_MINUTES + (i * TIME_STEP_MINUTES);
                 const intervalEndMinutes = intervalStartMinutes + TIME_STEP_MINUTES;
                 const hourOfIntervalStart = Math.floor(intervalStartMinutes / 60);
                 const touPeriod = getTouPeriod(hourOfIntervalStart);
 
-                if (touPeriod === '18-20' || touPeriod === '17_21') {
-                    let concurrentHighPowerAppsInInterval = 0;
-                    let contributingAppNames = [];
+                if (touPeriod === '18-20' || touPeriod === '17_21' || touPeriod === 'other') {
                     highPowerApps.forEach(app => {
-                        for (const slot of app.adjustedUsageSlots) {
-                            if (!slot) continue;
-                            const slotEnd = slot.start + slot.duration;
-                            if (slot.start < intervalEndMinutes && slotEnd > intervalStartMinutes) { // Check for overlap
-                                if (!contributingAppNames.includes(app.name)) {
-                                    contributingAppNames.push(app.name);
+                        if (app.adjustedUsageSlots) {
+                            const slots = app.adjustedUsageSlots;
+                            for (const slot of slots) {
+                                if (!slot) continue;
+                                const slotEnd = slot.start + slot.duration;
+                                if (slot.start < intervalEndMinutes && slotEnd > intervalStartMinutes) {
+                                    concurrentHighPowerAppsInInterval++;
+                                    break;
                                 }
                             }
                         }
                     });
-                    if (contributingAppNames.length > 1) { // If more than one unique high-power app is active
+                    // Check if the sum of power of these concurrent apps significantly exceeds base load
+                    // This check is a bit complex here as we only have count, not their combined power easily
+                    if (concurrentHighPowerAppsInInterval > 1) {
                         overlappingHighPowerInExpensiveHours = true;
-                        const messageKey = `${contributingAppNames.sort().join("-")}_${formatTime(intervalStartMinutes)}`; // Avoid duplicate messages for same combo/time
-                        if (!detailOverlapMessages.find(m => m.key === messageKey)) {
-                            detailOverlapMessages.push({
-                                key: messageKey,
-                                msg: `<li><span style="color:red;">❗ Alerta de Demanda Elevada:</span> Detectamos o uso simultâneo de <strong>${contributingAppNames.join(" e ")}</strong> no posto ${touPeriod === '18-20' ? 'ponta máximo' : 'intermediário'} (${formatTime(intervalStartMinutes)}). Isso aumenta significativamente sua demanda e custos. Tente distribuir o uso desses aparelhos.</li>`
-                            });
-                        }
+                        break;
                     }
                 }
             }
-            if (overlappingHighPowerInExpensiveHours) {
-                detailOverlapMessages.forEach(dm => conditionalTipsHtml += dm.msg);
-                specificAdviceGiven = true; scenarioTipsFound = true;
-            } else if ((adjustedScenario.peakDemandByToU['18-20'] > baseDemandKw || adjustedScenario.peakDemandByToU['17_21'] > baseDemandKw) && highPowerApps.length > 0) {
-                 conditionalTipsHtml += `<li>Apesar de não haver sobreposição direta de múltiplos aparelhos de alta potência nos picos mais caros, sua demanda ainda está elevada nesses períodos. Revise o uso individual de cada aparelho potente (${highPowerApps.map(a=>a.name).join(', ')}).</li>`;
-                 scenarioTipsFound = true;
-             }
         }
 
-        // 8. Appliance-Specific: Electric Shower
-        const electricShowerApp = selectedApps.find(app => app.id === 'electric-shower' && app.selected);
-        if (electricShowerApp && electricShowerApp.adjustedUsageSlots) {
-            let showerTipAdded = false;
-            electricShowerApp.adjustedUsageSlots.forEach(slot => {
-                if (!slot) return;
-                const slotStartHour = Math.floor(slot.start / 60);
-                if (slotStartHour >= 18 && slotStartHour < 21) { // Shower between 18:00 and 20:59
-                    conditionalTipsHtml += `<li>🚿 O <strong>chuveiro elétrico</strong> (alta potência: ${electricShowerApp.power}W) está sendo usado no horário de ponta (18:00-20:59). Banhos nesse período impactam fortemente tanto o custo de demanda quanto o de consumo. Se possível, prefira horários alternativos.</li>`;
-                    specificAdviceGiven = true; showerTipAdded = true;
-                } else if (slotStartHour === 17 || slotStartHour === 21) { // Shower at 17:xx or 21:xx
-                    conditionalTipsHtml += `<li>🚿 O <strong>chuveiro elétrico</strong> está sendo usado no posto intermediário (${slotStartHour}:00). Considerar horários mais baratos (madrugada, outras horas) pode reduzir custos.</li>`;
-                    specificAdviceGiven = true; showerTipAdded = true;
-                }
-            });
-            if (showerTipAdded) scenarioTipsFound = true;
+        if (overlappingHighPowerInExpensiveHours) {
+            tipsList.innerHTML += `<li>Considere escalonar o uso de aparelhos de alta potência (ex: fornos, chuveiros) em seu plano ajustado, especialmente durante os horários de maior custo de demanda (17h-21h e outras horas fora da madrugada), para reduzir o pico de demanda.</li>`;
+            tipsFound = true;
         }
 
-        // Fallback messages (from original logic, slightly adapted for clarity)
-        if (!scenarioTipsFound && selectedApps.length > 0) {
-            conditionalTipsHtml += "<li>Analise os horários de uso dos seus aparelhos no cenário ajustado. Tente deslocar o consumo para horários de tarifa mais baixa e evite picos de demanda simultânea.</li>";
-        } else if (selectedApps.length > 0 && !specificAdviceGiven && initialScenario && adjustedScenario.totalCost <= initialScenario.totalCost) {
-            conditionalTipsHtml += `<li>✅ Seu plano ajustado parece bem otimizado em relação aos pontos críticos de custo! Continue explorando para encontrar o melhor equilíbrio entre conforto e economia.</li>`;
-        } else if (selectedApps.length > 0 && scenarioTipsFound && !specificAdviceGiven && initialScenario && adjustedScenario.totalCost > initialScenario.totalCost) {
-            // This is a fallback if the main "cost is higher" tip didn't set specificAdviceGiven for some reason.
-            conditionalTipsHtml += `<li>Revise os picos de demanda e o consumo nos horários mais caros para tentar reduzir o custo, pois seu cenário ajustado está mais caro que o inicial.</li>`;
+        const energyInExpensiveVolumetricHours = adjustedScenario.dailyEnergyKWhByPeriod['18-20'] + adjustedScenario.dailyEnergyKWhByPeriod['17_21'] + adjustedScenario.dailyEnergyKWhByPeriod['other'];
+        const energyInCheapestVolumetricHours = adjustedScenario.dailyEnergyKWhByPeriod['0-6'];
+        const baseLoadEnergyInCheapestHours = ((BASE_DEMAND_WATTS / 1000) * 6 * (TIME_STEP_MINUTES / 60) * (60/TIME_STEP_MINUTES) ); // Energy of base load from 0-6h
+
+        // Check if there's significant appliance energy that could be shifted
+        if (energyInExpensiveVolumetricHours > (energyInCheapestVolumetricHours + 0.5) && (energyInCheapestVolumetricHours - baseLoadEnergyInCheapestHours) < 1.0) { // Example: if appliance energy in cheap hours is less than 1 kWh
+             tipsList.innerHTML += `<li>Tente deslocar mais consumo de energia de aparelhos para o período da madrugada (0h-6h), onde a tarifa volumétrica é mais baixa (R$${VOLUMETRIC_RATE_0_6.toFixed(2)}/kWh).</li>`;
+             tipsFound = true;
         }
 
-        conditionalTipsHtml += `</ul>`;
-        scenarioTipsContainerElement.innerHTML = conditionalTipsHtml;
+
+        if (!tipsFound) tipsList.innerHTML += "<li>Seu plano ajustado parece bom! Continue experimentando com os horários de uso para otimizar. Lembre-se de manter a demanda de pico o mais baixa possível, especialmente nos horários de ponta da sua concessionária.</li>";
+        else if (tipsList.innerHTML.length > 0 && !overlappingHighPowerInExpensiveHours && (energyInExpensiveVolumetricHours <= (energyInCheapestVolumetricHours + 0.5))) {
+             tipsList.innerHTML += `<li>Seu consumo já parece bem distribuído. Verifique se os picos de demanda nos horários caros estão minimizados.</li>`;
+        }
     }
 
     // Initial setup
