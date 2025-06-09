@@ -14,7 +14,7 @@ header, footer {
 }
 
 header h1 {
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
 }
 
 main > section {
@@ -53,65 +53,63 @@ h1, h2 {
 }
 
 .appliance-item.selected {
-    border-color: #4CAF50; /* Green border for selected */
+    border-color: #4CAF50; 
     transform: scale(1.05);
 }
 
-/* Container for time controls for each appliance */
 .appliance-time-controls {
-    margin-bottom: 20px; /* Increased space between appliance groups */
-    padding: 15px;      /* Added padding */
+    margin-bottom: 20px; 
+    padding: 15px;      
     border: 1px solid #ddd;
     border-radius: 5px;
-    background-color: #f9f9f9; /* Slight background for distinction */
+    background-color: #f9f9f9; 
 }
 
 .appliance-time-controls h3 {
-    margin-top: 0; /* Remove default top margin for h3 inside this div */
+    margin-top: 0; 
     margin-bottom: 15px;
-    font-size: 1.2em; /* Consistent title size */
-    color: #444; /* Darker than general h3 for emphasis */
+    font-size: 1.2em; 
+    color: #444; 
 }
 
-/* Styling for individual slot controls (Start, Duration, End) */
-.time-slot-controls { /* Renamed from time-slider-group for clarity */
+.time-slot-controls { 
     margin-bottom: 10px;
 }
 
-.time-slot-controls h4 { /* Title for individual slot (e.g., "Horário de Uso Máquina de Lavar 1") */
+.time-slot-controls h4 { 
     margin-bottom: 10px;
-    font-size: 1.0em; /* Slightly smaller for slot titles */
+    font-size: 1.0em; 
     color: #333;
 }
 
-.control-row { /* New class for layout consistency for each input/display row */
+.control-row { 
     display: flex;
     align-items: center;
-    margin-bottom: 10px; /* Space between rows (e.g., between Start Time row and Duration row) */
+    margin-bottom: 10px; 
 }
 
 .label-group {
     display: flex;
     align-items: center;
-    min-width: 180px;    /* Adjust to fit "Hora de Início:", "Duração:", "Hora de Término:" + time/value */
+    min-width: 180px;    
     margin-right: 10px;
 }
 
 .label-group label {
-    margin-right: 8px; /* Space between label text and its value span */
-    font-weight: bold; /* Make labels like "Hora de Início:" bold */
+    margin-right: 8px; 
+    font-weight: bold; 
 }
 
-.time-value, .duration-value { /* Class for spans holding dynamic time or duration */
+.time-value, .duration-value { 
     font-weight: normal;
-    min-width: 50px; /* Ensure space for "00:00" or "XX min" */
+    min-width: 50px; 
     text-align: left;
 }
 
-.input-wrapper { /* Replaces slider-wrapper, more generic for slider or select */
+.input-wrapper { 
     flex-grow: 1;
     display: flex;
-    position: relative; /* Crucial for absolute positioning of the reference tick */
+    position: relative; 
 }
 
 .input-wrapper input[type="range"],
@@ -121,37 +119,35 @@ h1, h2 {
     box-sizing: border-box;
 }
 
-/* Basic styling for charts */
 #initial-load-curve-chart-container, #updated-load-curve-chart-container {
     width: 100%;
     max-width: 700px;
     margin: 20px auto;
-    height: 400px; /* Ensure canvas elements have a defined height */
+    height: 400px; 
 }
 
 #cost-comparison-chart-container {
     width: 100%;
     max-width: 500px;
     margin: 20px auto;
-    height: 600px; /* Ensure canvas elements have a defined height */
+    height: 600px; 
 }
 
-.time-slot-controls hr { /* Ensure HR is styled if used between slots */
+.time-slot-controls hr { 
     margin-top: 15px;
     margin-bottom: 15px;
     border: 0;
     border-top: 1px solid #eee;
 }
 
-/* Styling for the new appliance count control */
 .appliance-count-control {
     margin-bottom: 15px;
     padding: 10px;
-    background-color: #e9e9e9; /* Slightly different background for count */
+    background-color: #e9e9e9; 
     border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 10px; /* Space between label and input */
+    gap: 10px; 
 }
 .appliance-count-control label {
     font-weight: bold;
@@ -162,30 +158,27 @@ h1, h2 {
     padding: 5px;
 }
 
-/* Styling for the initial slot reference text in the adjusted section */
 .initial-slot-reference {
-    font-size: 0.85em; /* Smaller text */
-    color: #555;      /* Greyish text */
-    margin-top: 8px;  /* Space above the reference text */
-    margin-bottom: 5px; /* Space below the reference text */
-    padding-left: 10px; /* Indent slightly */
-    border-left: 2px solid #ccc; /* Visual cue */
+    font-size: 0.85em; 
+    color: #555;      
+    margin-top: 8px;  
+    margin-bottom: 5px; 
+    padding-left: 10px; 
+    border-left: 2px solid #ccc; 
 }
 .initial-slot-reference em {
     font-style: italic;
 }
 
-/* Styling for the reference tick on adjusted sliders */
 .initial-start-tick {
     position: absolute;
-    width: 3px;  /* Thin bar */
-    height: 14px; /* A bit taller than typical track height */
-    background-color: #FF8C00; /* DarkOrange, or your preferred color */
+    width: 3px;  
+    height: 14px; 
+    background-color: #FF8C00; 
     top: 50%;
-    /* translateX(-50%) centers the tick on its 'left' percentage.
-       translateY(-50%) centers it vertically. */
+
     transform: translate(-50%, -50%);
-    z-index: 0; /* To be behind the slider's thumb */
-    pointer-events: none; /* Make sure it doesn't interfere with slider interaction */
-    display: none; /* Initially hidden, JavaScript will show it using 'block' or similar */
+    z-index: 0; 
+    pointer-events: none; 
+    display: none; 
 }

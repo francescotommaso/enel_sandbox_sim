@@ -1,29 +1,24 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
     Chart.register(ChartDataLabels); 
     Chart.defaults.plugins.datalabels.display = false;
-    
-    // --- Tariff Constants ---
+
     const TARIFF_FIXED_CHARGE = 8.68;
 
-    // Volumetric Charges (per kWh)
-    const VOLUMETRIC_RATE_0_6 = 0.27;    // 00:00 - 05:59
-    const VOLUMETRIC_RATE_17_21 = 0.46;  // 17:00 - 17:59 and 21:00 - 21:59
-    const VOLUMETRIC_RATE_18_20 = 0.86;  // 18:00 - 20:59
-    const VOLUMETRIC_RATE_OTHER = 0.31;  // Other hours
+    const VOLUMETRIC_RATE_0_6 = 0.27;    
+    const VOLUMETRIC_RATE_17_21 = 0.46;  
+    const VOLUMETRIC_RATE_18_20 = 0.86;  
+    const VOLUMETRIC_RATE_OTHER = 0.31;  
 
-    // Demand Charges (per kW of peak hourly demand in the window)
-    const DEMAND_RATE_0_6 = 1.31;        // 00:00 - 05:59
-    const DEMAND_RATE_17_21 = 7.85;      // 17:00 - 17:59 and 21:00 - 21:59
-    const DEMAND_RATE_18_20 = 15.70;      // 18:00 - 20:59
-    const DEMAND_RATE_OTHER = 2.62;     // Other hours
+    const DEMAND_RATE_0_6 = 1.31;        
+    const DEMAND_RATE_17_21 = 7.85;      
+    const DEMAND_RATE_18_20 = 15.70;      
+    const DEMAND_RATE_OTHER = 2.62;     
 
     const DAYS_IN_MONTH = 30;
-    const BASE_DEMAND_WATTS = 200; //
+    const BASE_DEMAND_WATTS = 200; 
 
-    // --- Time Constants ---
-    const MIN_TIME_MINUTES = 0 * 60; // 00:00
-    const MAX_TIME_MINUTES = 24 * 60; // 24:00 (exclusive for loops, represents up to 23:59:59)
+    const MIN_TIME_MINUTES = 0 * 60; 
+    const MAX_TIME_MINUTES = 24 * 60; 
     const TIME_STEP_MINUTES = 15;
     const DEFAULT_DURATION_MINUTES = 30;
     const MIN_DURATION_MINUTES = 5;
@@ -32,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_APPLIANCE_COUNT = 1;
     const MAX_APPLIANCE_COUNT = 5;
 
-    // --- Appliance Definitions ---
     const appliances = [
         { id: 'electric-shower', name: 'Chuveiro Elétrico (Potência 5500W)', power: 5500, count: 1, iconBW: 'icons/shower_bw.png', iconColor: 'icons/shower_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
         { id: 'washing-machine', name: 'Máquina de Lavar Roupa (Potência 600W)', power: 600, count: 1, iconBW: 'icons/washing_machine_bw.png', iconColor: 'icons/washing_machine_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] },
@@ -44,17 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'air-heater', name: 'Aquecedor de Ar (Potência 1800W)', power: 1800, count: 1, iconBW: 'icons/air_heater_bw.png', iconColor: 'icons/air_heater_color.png', selected: false, usageSlots: [], adjustedUsageSlots: [], adjustedTicks: [], adjustedStartSliders: [], adjustedStartValueSpans: [], adjustedDurationValueSpans: [], adjustedEndValueSpans: [] }
     ];
 
-    // --- DOM Element References ---
     const applianceGrid = document.querySelector('.appliance-grid');
     const initialTimeSlidersContainer = document.getElementById('initial-time-sliders-container');
     const adjustedTimeSlidersContainer = document.getElementById('adjusted-time-sliders-container');
 
-    // --- Chart Instances ---
     let initialLoadCurveChartInstance = null;
     let updatedLoadCurveChartInstance = null;
     let costComparisonChartInstance = null;
 
-    // --- Initialize Appliance Icons ---
     appliances.forEach(app => {
         const item = document.createElement('div');
         item.classList.add('appliance-item');
@@ -348,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index < currentSlots.length - 1) slotDiv.appendChild(document.createElement('hr'));
             applianceControlDiv.appendChild(slotDiv);
 
-            if (slotArrayKey === 'usageSlots') { // Event Listeners for INITIAL SLOTS
+            if (slotArrayKey === 'usageSlots') { 
                 startSliderEl.addEventListener('input', () => {
                     slot.start = parseInt(startSliderEl.value);
                     slot.end = slot.start + slot.duration;
@@ -420,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     recalculateAndDisplayAllScenarios();
                 });
-            } else { // Event Listeners for ADJUSTED SLOTS
+            } else { 
                 startSliderEl.addEventListener('input', () => {
                     slot.start = parseInt(startSliderEl.value);
                     const initialSlot = appliance.usageSlots[index];
@@ -457,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeLabels = [];
         const powerProfileWatts = [];
         const timeIntervalMinutes = TIME_STEP_MINUTES;
-        const timeIntervalHours = timeIntervalMinutes / 60; // 0.25 hours
+        const timeIntervalHours = timeIntervalMinutes / 60; 
         const baseDemandKWhPerInterval = (BASE_DEMAND_WATTS / 1000) * timeIntervalHours;
 
         const dailyEnergyKWhByPeriod = {
@@ -467,18 +458,15 @@ document.addEventListener('DOMContentLoaded', () => {
             'other': 0
         };
 
-        // Initialize power profile with base demand and calculate base demand energy
         for (let t_mins = MIN_TIME_MINUTES; t_mins < MAX_TIME_MINUTES; t_mins += timeIntervalMinutes) {
             timeLabels.push(formatTime(t_mins));
-            powerProfileWatts.push(BASE_DEMAND_WATTS); // Start each interval with base demand
+            powerProfileWatts.push(BASE_DEMAND_WATTS); 
 
-            // Add base demand energy to the correct ToU period
             const hourOfIntervalStart = Math.floor(t_mins / 60);
             const touPeriod = getTouPeriod(hourOfIntervalStart);
             dailyEnergyKWhByPeriod[touPeriod] += baseDemandKWhPerInterval;
         }
 
-        // Add appliance consumption to power profile and energy
         selectedAppliances.forEach(app => {
             if (app.selected && app[slotArrayKey]) {
                 const slots = app[slotArrayKey];
@@ -492,9 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         const intervalEndMinutes = intervalStartMinutes + timeIntervalMinutes;
 
                         if (currentSlotStart < intervalEndMinutes && currentSlotEnd > intervalStartMinutes) {
-                            powerProfileWatts[t_idx] += app.power; // Add appliance power to base demand
+                            powerProfileWatts[t_idx] += app.power; 
 
-                            // Calculate additional energy from this appliance for this interval
                             const appliancePowerKw = app.power / 1000;
                             const applianceEnergyInIntervalKWh = appliancePowerKw * timeIntervalHours;
                             const hourOfIntervalStart = Math.floor(intervalStartMinutes / 60);
@@ -526,9 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (countOfIntervalsInHour > 0) {
                 hourlyDemandsKw.push((sumOfPowerInHourWatts / countOfIntervalsInHour) / 1000);
             } else {
-                // This case should ideally not happen if powerProfileWatts covers all intervals
-                // If it does, it implies an issue with loop bounds or MAX_TIME_MINUTES.
-                // For safety, push the base demand in kW if no appliance activity.
+
                 hourlyDemandsKw.push(BASE_DEMAND_WATTS / 1000);
             }
         }
@@ -548,13 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 peakDemandByPeriod[touPeriod] = demandThisHourKw;
             }
         }
-        // Ensure base demand is at least considered if no appliances push it higher in a period
+
         for (const period in peakDemandByPeriod) {
             if (peakDemandByPeriod[period] < (BASE_DEMAND_WATTS / 1000)) {
                  peakDemandByPeriod[period] = (BASE_DEMAND_WATTS / 1000);
             }
         }
-
 
         totalDemandCharge += (peakDemandByPeriod['0-6'] * DEMAND_RATE_0_6);
         totalDemandCharge += (peakDemandByPeriod['17_21'] * DEMAND_RATE_17_21);
@@ -576,9 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
             '18-20': peakDemandByPeriod['18-20'] * DEMAND_RATE_18_20,
             'other': peakDemandByPeriod['other'] * DEMAND_RATE_OTHER,
         };
-         // Recalculate total energy from the daily breakdown for accuracy
-        let totalDailyKWh = Object.values(dailyEnergyKWhByPeriod).reduce((sum, val) => sum + val, 0);
 
+        let totalDailyKWh = Object.values(dailyEnergyKWhByPeriod).reduce((sum, val) => sum + val, 0);
 
         return {
             loadProfileWatts: powerProfileWatts,
@@ -591,12 +574,11 @@ document.addEventListener('DOMContentLoaded', () => {
             volumetricChargeBreakdown,
             totalDemandCharge: totalDemandCharge,
             demandChargeBreakdown,
-            dailyEnergyKWhByPeriod, // This now includes base load energy
-            totalDailyKWh, // Total daily energy consumption
+            dailyEnergyKWhByPeriod, 
+            totalDailyKWh, 
             timeLabels
         };
     }
-
 
     function recalculateAndDisplayAllScenarios() {
         const selectedApps = appliances.filter(a => a.selected);
@@ -616,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('net-cost').textContent = `R$${netCost.toFixed(2)}`;
 
         plotCostComparisonStacked(initialScenario, adjustedScenario);
-        generateTips(initialScenario, adjustedScenario, selectedApps); // Pass initialScenario here
+        generateTips(initialScenario, adjustedScenario, selectedApps); 
     }
 
     function plotLoadCurve(loadDataWatts, labelsArray, canvasId, instanceVarName, datasetLabel, xAxisLabel) {
@@ -633,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     backgroundColor: 'rgba(85,190,90,0.2)',
                     tension: 0.1,
                     fill: true,
-                    pointRadius: 0, // Hide points for base load curve
+                    pointRadius: 0, 
                     borderWidth: 1.5
                 }]
             },
@@ -641,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Potência (Watts)' } }, // beginAtZero: false to better see base load
+                    y: { beginAtZero: true, title: { display: true, text: 'Potência (Watts)' } }, 
                     x: { title: { display: true, text: xAxisLabel } }
                 },
                 animation: { duration: 0 },
@@ -670,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Potência (Watts)' } }, // beginAtZero: false
+                    y: { beginAtZero: true, title: { display: true, text: 'Potência (Watts)' } }, 
                     x: { title: { display: true, text: xAxisLabel } }
                 },
                 animation: { duration: 0 }
@@ -679,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function plotCostComparisonStacked(initialScen, adjustedScen) {
-        // 1) Define the custom plugin for this chart only
+
         const showStackTotalsPlugin = {
             id: 'showStackTotals',
             afterDatasetsDraw(chart) {
@@ -709,17 +691,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // 2) Grab canvas/context
         const canvas = document.getElementById('costComparisonChart');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (costComparisonChartInstance) costComparisonChartInstance.destroy();
 
-        // The registration lines have been REMOVED from here.
-
         const stackGroup = 'totalBill';
         const datasets = [
-            // ... (dataset definitions are unchanged)
+
             {
                 label: 'Parcela Fixa',
                 data: [initialScen.fixedCharge, adjustedScen.fixedCharge],
@@ -746,14 +725,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         ];
 
-        // 3) Create the chart
         costComparisonChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Cenário Inicial', 'Cenário Ajustado'],
                 datasets: datasets
             },
-            // We pass the custom plugin here, it only applies to this chart instance
+
             plugins: [showStackTotalsPlugin], 
             options: {
                 responsive: true,
@@ -783,7 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     },
                     datalabels: {
-                        // This overrides the global default of 'false'
+
                         display: true, 
                         color: '#000',
                         anchor: 'center',
@@ -800,14 +778,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     function generateTips(initialScenario, adjustedScenario, selectedApps) {
-        // --- General Tips ---
+
         const generalTipsListElement = document.getElementById('tips-list');
         if (!generalTipsListElement) {
             console.error("Element with ID 'tips-list' not found for general tips.");
         } else {
-            generalTipsListElement.innerHTML = ''; // Clear previous general tips
+            generalTipsListElement.innerHTML = ''; 
 
             let generalTipsHtml = `<h3>💡 Dicas Gerais para Economizar Energia:</h3><ul>`;
             generalTipsHtml += `<li>🌙 Sempre que possível, tente usar mais os aparelhos entre 0h e 17h, e após as 22h, quando as tarifas de energia são mais econoômicas.</li>`;
@@ -817,29 +794,26 @@ document.addEventListener('DOMContentLoaded', () => {
             generalTipsListElement.innerHTML = generalTipsHtml;
         }
 
-        // --- Scenario-Specific Tips ---
         const scenarioTipsContainerElement = document.getElementById('scenario-specific-tips-container');
         if (!scenarioTipsContainerElement) {
             console.error("Element with ID 'scenario-specific-tips-container' not found for scenario tips.");
-            return; // If this container is missing, can't proceed
+            return; 
         }
-        scenarioTipsContainerElement.innerHTML = ''; // Clear previous content from the container
+        scenarioTipsContainerElement.innerHTML = ''; 
 
         if (selectedApps.length === 0) {
-            // If no appliances are selected, show a placeholder message in the scenario tips area
+
             scenarioTipsContainerElement.innerHTML = `<h3>📈 Dicas para seu Cenário Ajustado:</h3><p><em>Selecione eletrodomésticos e ajuste os horários de uso para ver dicas específicas para o seu novo cenário.</em></p>`;
             return;
         }
 
-        // If apps are selected, proceed to generate and display conditional/scenario-specific tips
         let conditionalTipsHtml = `<h3>📈 Dicas para seu Cenário Ajustado:</h3><ul>`;
         let scenarioTipsFound = false;
-        let specificAdviceGiven = false; // To track if more than generic advice was given
+        let specificAdviceGiven = false; 
 
         const baseDemandKw = BASE_DEMAND_WATTS / 1000;
         const currencyFormat = { style: 'currency', currency: 'BRL' };
 
-        // 1. Compare total costs
         if (initialScenario && adjustedScenario.totalCost < initialScenario.totalCost) {
             const savings = initialScenario.totalCost - adjustedScenario.totalCost;
             conditionalTipsHtml += `<li>🎉 <strong>Parabéns!</strong> Com os ajustes, você simulou uma economia de <strong>${savings.toLocaleString('pt-BR', currencyFormat)}</strong> em relação ao cenário inicial (de ${initialScenario.totalCost.toLocaleString('pt-BR', currencyFormat)} para ${adjustedScenario.totalCost.toLocaleString('pt-BR', currencyFormat)}).</li>`;
@@ -855,7 +829,6 @@ document.addEventListener('DOMContentLoaded', () => {
              scenarioTipsFound = true;
         }
 
-        // 3. Demand Charge Focus
         const demandChargePercentage = adjustedScenario.totalCost > 0 ? (adjustedScenario.totalDemandCharge / adjustedScenario.totalCost) * 100 : 0;
         if (demandChargePercentage > 35 && adjustedScenario.totalDemandCharge > (TARIFF_FIXED_CHARGE * 0.5)) {
             conditionalTipsHtml += `<li>⚠️ Aproximadamente <strong>${demandChargePercentage.toFixed(0)}%</strong> do seu custo ajustado é devido à <strong>tarifa de demanda</strong>. Reduzir o uso simultâneo de aparelhos potentes, especialmente nos horários de pico, pode gerar economias consideráveis.</li>`;
@@ -863,7 +836,6 @@ document.addEventListener('DOMContentLoaded', () => {
             specificAdviceGiven = true;
         }
 
-        // 4. Peak Demand Warnings
         if (adjustedScenario.peakDemandByToU['18-20'] > baseDemandKw) {
             conditionalTipsHtml += `<li>🔴 <strong>Atenção ao pico de demanda entre 18:00-21:00!</strong> Sua demanda estimada é de <strong>${adjustedScenario.peakDemandByToU['18-20'].toFixed(2)} kW</strong>. Esta é a faixa horária com a <strong>tarifa mais elevada</strong> (${DEMAND_RATE_18_20.toLocaleString('pt-BR', currencyFormat)}/kW). Evite ao máximo o uso simultâneo de aparelhos de alta potência neste período e no mesmo horário.</li>`;
             specificAdviceGiven = true; scenarioTipsFound = true;
@@ -882,9 +854,8 @@ document.addEventListener('DOMContentLoaded', () => {
             specificAdviceGiven = true; scenarioTipsFound = true;
         }
 
-        // 6. Multiple uses of the same appliance
-        const peakStartMinutes = 18 * 60; // 18:00
-        const peakEndMinutes = 21 * 60;   // 21:00 (exclusive end for 18:00-20:59 window)
+        const peakStartMinutes = 18 * 60; 
+        const peakEndMinutes = 21 * 60;   
 
         selectedApps.forEach(app => {
             if (app.selected && (app.count || 1) > 1 && app.adjustedUsageSlots && app.adjustedUsageSlots.length > 1) {
@@ -894,7 +865,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 app.adjustedUsageSlots.forEach(slot => {
                     if (!slot) return;
                     const slotEnd = slot.start + slot.duration;
-                    // Check if the slot overlaps with the 18:00-20:59 critical peak
+
                     if (slot.start < peakEndMinutes && slotEnd > peakStartMinutes) {
                          usesInCriticalPeak++;
                     }
@@ -906,11 +877,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 7. Overlapping high-power appliances
         const highPowerApps = selectedApps.filter(app => app.selected && app.power >= 1500 && app.adjustedUsageSlots && app.adjustedUsageSlots.length > 0);
         if (highPowerApps.length > 1) {
             let overlappingHighPowerInExpensiveHours = false;
-            let detailOverlapMessages = []; // To collect detailed messages
+            let detailOverlapMessages = []; 
 
             for (let t_idx = 0; t_idx < adjustedScenario.loadProfileWatts.length; t_idx++) {
                 const intervalStartMinutes = MIN_TIME_MINUTES + (t_idx * TIME_STEP_MINUTES);
@@ -925,16 +895,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         for (const slot of app.adjustedUsageSlots) {
                             if (!slot) continue;
                             const slotEnd = slot.start + slot.duration;
-                            if (slot.start < intervalEndMinutes && slotEnd > intervalStartMinutes) { // Check for overlap
+                            if (slot.start < intervalEndMinutes && slotEnd > intervalStartMinutes) { 
                                 if (!contributingAppNames.includes(app.name)) {
                                     contributingAppNames.push(app.name);
                                 }
                             }
                         }
                     });
-                    if (contributingAppNames.length > 1) { // If more than one unique high-power app is active
+                    if (contributingAppNames.length > 1) { 
                         overlappingHighPowerInExpensiveHours = true;
-                        const messageKey = `${contributingAppNames.sort().join("-")}_${formatTime(intervalStartMinutes)}`; // Avoid duplicate messages for same combo/time
+                        const messageKey = `${contributingAppNames.sort().join("-")}_${formatTime(intervalStartMinutes)}`; 
                         if (!detailOverlapMessages.find(m => m.key === messageKey)) {
                             detailOverlapMessages.push({
                                 key: messageKey,
@@ -953,17 +923,16 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         }
 
-        // 8. Appliance-Specific: Electric Shower
         const electricShowerApp = selectedApps.find(app => app.id === 'electric-shower' && app.selected);
         if (electricShowerApp && electricShowerApp.adjustedUsageSlots) {
             let showerTipAdded = false;
             electricShowerApp.adjustedUsageSlots.forEach(slot => {
                 if (!slot) return;
                 const slotStartHour = Math.floor(slot.start / 60);
-                if (slotStartHour >= 18 && slotStartHour < 21) { // Shower between 18:00 and 20:59
+                if (slotStartHour >= 18 && slotStartHour < 21) { 
                     conditionalTipsHtml += `<li>🚿 O <strong>chuveiro elétrico</strong> (alta potência: ${electricShowerApp.power}W) está sendo usado no horário de pico (18:00-21:00). Banhos nesse período impactam fortemente tanto o custo de demanda quanto o de consumo. Se possível, prefira horários alternativos.</li>`;
                     specificAdviceGiven = true; showerTipAdded = true;
-                } else if (slotStartHour === 17 || slotStartHour === 21) { // Shower at 17:xx or 21:xx
+                } else if (slotStartHour === 17 || slotStartHour === 21) { 
                     conditionalTipsHtml += `<li>🚿 O <strong>chuveiro elétrico</strong> está sendo usado no posto intermediário (${slotStartHour}:00). Considerar os horários "mais econômico" e "econômico" pode reduzir custos.</li>`;
                     specificAdviceGiven = true; showerTipAdded = true;
                 }
@@ -971,13 +940,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showerTipAdded) scenarioTipsFound = true;
         }
 
-        // Fallback messages (from original logic, slightly adapted for clarity)
         if (!scenarioTipsFound && selectedApps.length > 0) {
             conditionalTipsHtml += "<li>Analise os horários de uso dos seus aparelhos no cenário ajustado. Tente deslocar o consumo para horários de tarifa mais baixa e evite picos de demanda simultânea.</li>";
         } else if (selectedApps.length > 0 && !specificAdviceGiven && initialScenario && adjustedScenario.totalCost <= initialScenario.totalCost) {
             conditionalTipsHtml += `<li>✅ Seu plano ajustado parece bem otimizado em relação aos pontos críticos de custo! Continue explorando para encontrar o melhor equilíbrio entre conforto e economia.</li>`;
         } else if (selectedApps.length > 0 && scenarioTipsFound && !specificAdviceGiven && initialScenario && adjustedScenario.totalCost > initialScenario.totalCost) {
-            // This is a fallback if the main "cost is higher" tip didn't set specificAdviceGiven for some reason.
+
             conditionalTipsHtml += `<li>Revise os picos de demanda e o consumo nos horários mais caros para tentar reduzir o custo, pois seu cenário ajustado está mais caro que o inicial.</li>`;
         }
 
@@ -985,7 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
         scenarioTipsContainerElement.innerHTML = conditionalTipsHtml;
     }
 
-    // Initial setup
     updateAllTimesSliders();
     recalculateAndDisplayAllScenarios();
 });
