@@ -2,22 +2,22 @@ document.addEventListener('DOMContentLoaded', () => {
     Chart.register(ChartDataLabels); 
     Chart.defaults.plugins.datalabels.display = false;
 
-    const TARIFF_FIXED_CHARGE = 8.68;
+    const TARIFF_FIXED_CHARGE = 9.00;
 
-    const VOLUMETRIC_RATE_0_6 = 0.27;    
-    const VOLUMETRIC_RATE_17_21 = 0.46;  
-    const VOLUMETRIC_RATE_18_20 = 0.86;  
-    const VOLUMETRIC_RATE_OTHER = 0.31;  
+    const VOLUMETRIC_RATE_0_6 = 0.33;    
+    const VOLUMETRIC_RATE_17_21 = 0.65;  
+    const VOLUMETRIC_RATE_18_20 = 1.22;  
+    const VOLUMETRIC_RATE_OTHER = 0.39;  
 
-    const DEMAND_RATE_0_6 = 1.31;        
-    const DEMAND_RATE_17_21 = 7.85;      
-    const DEMAND_RATE_18_20 = 15.70;      
-    const DEMAND_RATE_OTHER = 2.62;     
+    const DEMAND_RATE_0_6 = 1.09;        
+    const DEMAND_RATE_17_21 = 6.55;      
+    const DEMAND_RATE_18_20 = 13.11;      
+    const DEMAND_RATE_OTHER = 2.18;     
 
     const DAYS_IN_MONTH = 30;
     const BASE_DEMAND_WATTS = 200; 
 
-    const MIN_TIME_MINUTES = 0 * 60; 
+    const MIN_TIME_MINUTES = 0 * 60;
     const MAX_TIME_MINUTES = 24 * 60; 
     const TIME_STEP_MINUTES = 15;
     const DEFAULT_DURATION_MINUTES = 30;
