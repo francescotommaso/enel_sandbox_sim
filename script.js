@@ -502,20 +502,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const hourlyDemandsKw = [];
         const intervalsPerHour = 60 / timeIntervalMinutes;
         for (let hour = 0; hour < (MAX_TIME_MINUTES / 60); hour++) {
-            let sumOfPowerInHourWatts = 0;
-            let countOfIntervalsInHour = 0;
             const startIntervalIndex = hour * intervalsPerHour;
             const endIntervalIndex = startIntervalIndex + intervalsPerHour;
-            for (let i = startIntervalIndex; i < endIntervalIndex && i < powerProfileWatts.length; i++) {
-                sumOfPowerInHourWatts += powerProfileWatts[i];
-                countOfIntervalsInHour++;
-            }
-            if (countOfIntervalsInHour > 0) {
-                hourlyDemandsKw.push((sumOfPowerInHourWatts / countOfIntervalsInHour) / 1000);
+            
+            // Get the slice of the power profile for the current hour
+            const powerIntervalsForHour = powerProfileWatts.slice(startIntervalIndex, endIntervalIndex);
+            
+            let maxPowerInHourWatts = 0;
+            if (powerIntervalsForHour.length > 0) {
+                // Find the MAXIMUM power value in that hour's intervals
+                maxPowerInHourWatts = Math.max(...powerIntervalsForHour);
             } else {
-
-                hourlyDemandsKw.push(BASE_DEMAND_WATTS / 1000);
+                // If no intervals, use the base demand
+                maxPowerInHourWatts = BASE_DEMAND_WATTS;
             }
+
+            // Convert the peak power in Watts to kilowatts
+            hourlyDemandsKw.push(maxPowerInHourWatts / 1000);
         }
 
         let totalDemandCharge = 0;
